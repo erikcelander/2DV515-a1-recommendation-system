@@ -16,8 +16,7 @@ export function ModeToggle() {
   }, [theme, setTheme]);
 
   const toggleTheme = () => {
-    // If there's no theme or the theme is 'system', default to 'dark'
-    // Otherwise, switch to the other theme
+   
     if (!theme || theme === 'system') {
       setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
     } else {
@@ -25,7 +24,6 @@ export function ModeToggle() {
     }
   };
 
-  // Use a consistent default icon before hydration
   const Icon = !theme || theme === 'dark' || resolvedTheme === 'dark' ? SunIcon : MoonIcon;
 
   return (

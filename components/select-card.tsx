@@ -22,9 +22,12 @@ import {
 import{ User, Movie } from "@/types/types";
 
 
-export function SelectCard({ users, movies }: { users: User[], movies: Movie[] }) {
+export async function SelectCard({ users, movies }: { users: User[], movies: Movie[] }) {
+
   const resultsOptions = Array.from({ length: 10 }, (_, i) => i + 1);
 
+
+  
   return (
     <Card className="w-[450px]">
       <CardHeader>
