@@ -1,4 +1,4 @@
-import { SelectCard } from '@/components/select-card'
+import { RecommendationSystem } from '@/components/recommendation-system'
 
 export default async function Home() {
   'use server'
@@ -8,7 +8,7 @@ export default async function Home() {
 
   return (
     <main className="flex flex-col items-center justify-between p-24">
-      <SelectCard users={users} movies={movies} />
+      <RecommendationSystem users={users} movies={movies} ratings={ratings}/>
     </main>
   )
 }
