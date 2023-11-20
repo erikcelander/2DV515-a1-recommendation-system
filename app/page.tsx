@@ -1,9 +1,8 @@
 import { RecommendationSystem } from '@/components/recommendation-system'
+import { fetchData } from '@/lib/data-fetching'
 
 export default async function Home() {
-  const results = await fetch('http://localhost:3000/api')
-  const { users, movies } = await results.json()
-
+  const { users, movies } = await fetchData()
 
   return (
     <main className="flex flex-col items-center justify-between p-8">
@@ -11,4 +10,3 @@ export default async function Home() {
     </main>
   )
 }
-/*, { cache: 'force-cache' }*/

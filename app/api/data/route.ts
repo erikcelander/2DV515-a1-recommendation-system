@@ -3,8 +3,7 @@ import { parse } from 'csv-parse/sync'
 import { Movie, User, MovieRating } from '@/lib//types'
 
 export async function GET() {
-  const path = process.env.NODE_ENV === 'development' ? process.env.PATH_DEV : process.env.PATH_PROD
-  console.log(path)
+  const path = 'data/movies_large'
   const rawMovies = readAndParseCSV(`${path}/movies.csv`)
   const rawUsers = readAndParseCSV(`${path}/users.csv`)
   const rawRatings = readAndParseCSV(`${path}/ratings.csv`)
@@ -13,17 +12,10 @@ export async function GET() {
 
   const data = { movies, users }
 
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-
+  return Response.json(data)
 }
 
 function readAndParseCSV(filePath: string): any[] {
-  console.log(`Reading file from: ${filePath}`)
   const content = fs.readFileSync(filePath, { encoding: 'utf-8' })
 
   const data = parse(content, {
