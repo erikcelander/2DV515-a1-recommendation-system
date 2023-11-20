@@ -1,21 +1,18 @@
 import fs from 'fs'
 import { parse } from 'csv-parse/sync'
-import { Movie, User, Rating } from '@/lib//types'
+import { Movie, User, MovieRating } from '@/lib//types'
 
-// API route handler
 export async function GET() {
+  const path = process.env.NODE_ENV === 'development' ? process.env.PATH_DEV : process.env.PATH_PROD
+  console.log(path)
+  const rawMovies = readAndParseCSV(`${path}/movies.csv`)
+  const rawUsers = readAndParseCSV(`${path}/users.csv`)
+  const rawRatings = readAndParseCSV(`${path}/ratings.csv`)
 
-  const rawMovies = readAndParseCSV('data/movies_large/movies.csv')
-  const rawUsers = readAndParseCSV('data/movies_large/users.csv')
-  const rawRatings = readAndParseCSV('data/movies_large/ratings.csv')
+  const { movies, users } = convertDataToTypes(rawMovies, rawUsers, rawRatings)
 
-  // Convert the raw data to typed data
-  const { movies, users, ratings } = convertDataToTypes(rawMovies, rawUsers, rawRatings)
+  const data = { movies, users }
 
-  // Prepare the data to be returned
-  const data = { movies, users, ratings }
-
-  // Return the response
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: {
@@ -38,24 +35,45 @@ function readAndParseCSV(filePath: string): any[] {
 }
 
 
-function convertDataToTypes(rawMovies: any[], rawUsers: any[], rawRatings: any[]): { movies: Movie[], users: User[], ratings: Rating[] } {
-  const movies: Movie[] = rawMovies.map((rawMovie) => ({
-    MovieId: parseInt(rawMovie.MovieId),
-    Title: rawMovie.Title,
-    Year: parseInt(rawMovie.Year),
-  }))
+
+function convertDataToTypes(rawMovies: any[], rawUsers: any[], rawRatings: any[]): { users: User[], movies: Movie[] } {
+  const movies: Movie[] = []
+  const moviesMap = new Map<number, string>()
+
+  rawMovies.forEach((rawMovie) => {
+    const movieId = parseInt(rawMovie.MovieId)
+    const movie = {
+      MovieId: movieId,
+      Title: rawMovie.Title,
+      Year: parseInt(rawMovie.Year),
+    }
+    movies.push(movie)
+    moviesMap.set(movieId, rawMovie.Title)
+  })
+
+  const ratingsGroupedByUser: { [key: number]: MovieRating[] } = {}
+  rawRatings.forEach((rawRating) => {
+    const userId = parseInt(rawRating.UserId)
+    const movieId = parseInt(rawRating.MovieId)
+    const movieTitle = moviesMap.get(movieId)
+
+    const rating: MovieRating = {
+      Title: movieTitle || 'Unknown Title',
+      Rating: parseFloat(rawRating.Rating),
+    }
+
+    if (!ratingsGroupedByUser[userId]) {
+      ratingsGroupedByUser[userId] = []
+    }
+
+    ratingsGroupedByUser[userId].push(rating)
+  })
 
   const users: User[] = rawUsers.map((rawUser) => ({
     UserId: parseInt(rawUser.UserId),
     Name: rawUser.Name,
+    Ratings: ratingsGroupedByUser[parseInt(rawUser.UserId)] || [],
   }))
 
-  const ratings: Rating[] = rawRatings.map((rawRating) => ({
-    UserId: parseInt(rawRating.UserId),
-    MovieId: parseInt(rawRating.MovieId),
-    Rating: parseFloat(rawRating.Rating),
-  }))
-
-  return { movies, users, ratings }
+  return { users, movies }
 }
-  
