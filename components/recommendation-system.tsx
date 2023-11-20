@@ -52,7 +52,7 @@ export function RecommendationSystem({ users, movies }: { users: User[], movies:
   }
 
   return (
-    <Card className="w-[500px]">
+    <Card className="w-[450px]">
       <CardHeader>
         <CardTitle>Recommendation system</CardTitle>
         <CardDescription>Find recommended movies and similar users.</CardDescription>
